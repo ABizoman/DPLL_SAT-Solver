@@ -1,7 +1,6 @@
 # DPLL SAT Solver
 14/04/2025
 
----
 This is a lightweight Python implementation of the DPLL Boolean satisfiability algorithm using an occurrence list. You can use this sat solver on [this website].
 
 [Sat Solving](https://en.wikipedia.org/wiki/SAT_solver)  is the process of determining whether there exists an assignment of **true/false values** to variables that makes a given **Boolean formula** evaluate to **true**.
