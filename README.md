@@ -1,2 +1,2 @@
 # DPLL_SAT-Solver
-This a lightweight python implementation of the DPLL boolean satisfiability problem algorithm using an occurrence list.
+This is a lightweight Python implementation of the DPLL Boolean satisfiability algorithm using an occurrence list.
