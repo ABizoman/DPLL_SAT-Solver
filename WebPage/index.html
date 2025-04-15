@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>DPLL SAT Solver in Browser</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-SgOJa3DmI69IUzQ2PVdRZhwQ+dy64/BUtbMJw1MZ8t5HZApcHrRKUc4W0kG879m7" crossorigin="anonymous">
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/brython@3.11.0/brython.min.js"></script>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body onload="brython()">
+
+    <nav class="navbar sticky-top navbar-expand-lg">
+        <div class="container">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-label="Toggle navigation" aria-expanded="false" aria-controls="navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item"><a class="nav-link" href="index.html">Sat Solver</a></li>
+                    <li class="nav-item"><a class="nav-link" href="sat-checker.html">Sat Checker</a></li>
+                    <li class="nav-item"><a class="nav-link" href="about.html">About</a></li>
+                </ul>
+                <div class="p-1"></div>
+            </div>
+        </div>
+    </nav>
+
+<div class="container">
+    <h2 class="mt-4">DPLL SAT Solver using an Occurence List</h2>
+    <p class="lead">A lightweight DPLL SAT solver implemented in Python with browser-side execution using Brython.</p>
+
+    <p>Here is the parapgraph that explain what the sat solver is and some infomation about this implementation</p>
+    <p class="text-muted">Accepts DIMACS format only</p>
+    <textarea class="form-control" id="dimacs" rows="10" cols="60">p cnf 3 2 
+1 -3 0 
+2 3 -1 0
+        </textarea><br>
+        
+        <button class="btn btn-dark" type="button" id="solveBtn">Solve</button>
+        <div class="p-1"></div>
+        <h3>Result:</h3>
+        <pre id="output"></pre>
+</div>
+
+<footer class="text-center mt-5 py-4">
+    <p class="mb-1">© 2025 Othman Achki. All Rights Reserved.</p>
+</footer>
+
+<script type="text/python">
+from browser import document
+
+def load_dimacs_from_string(dimacs_str):
+    lines = dimacs_str.strip().splitlines()
+    clauses = []
+    for line in lines:
+        line = line.strip()
+        if line == '' or line.startswith('c') or line.startswith('p'):
+            continue
+        clause = list(map(int, line.split()[:-1]))  # skip trailing 0
+        clauses.append(clause)
+    return clauses
+
+def dpll_sat_solve(clauseSet, partialAssignment=[]):
+    def JWCof4(clauseSet, occurenceList):
+        scores = {}
+        for literal, indices in occurenceList.items():
+            for idx in indices:
+                clause = clauseSet[idx]
+                if clause:
+                    scores[literal] = scores.get(literal, 0) + 4 ** (-len(clause))
+        combined_scores = {}
+        for literal in scores:
+            if -literal in combined_scores:
+                continue
+            combined_scores[literal] = scores.get(literal, 0) + scores.get(-literal, 0)
+        if combined_scores:
+            best = max(combined_scores, key=combined_scores.get)
+            return best if combined_scores[best] >= scores.get(-best, 0) else -best
+        return next(iter(occurenceList))
+
+    def buildOccurenceList(clauseSet):
+        occurenceList = {}
+        for i in range(len(clauseSet)):
+            for literal in clauseSet[i]:
+                if literal not in occurenceList:
+                    occurenceList[literal] = set()
+                occurenceList[literal].add(i)
+        return occurenceList
+
+    def dynamicUP(clauseSet, UPstack):
+        units = {next(iter(clause)) for clause in clauseSet if clause and len(clause) == 1}
+        if any(-u in units for u in units):
+            return False
+        newAssignments = set(units)
+        UPclauseSet = clauseSet[:]
+        while units:
+            newUnits = set()
+            for unit in units:
+                for index in occurenceList.get(unit, []):
+                    UPclauseSet[index] = None
+                UPstack.append((unit, occurenceList.get(unit, set())))
+                occurenceList.pop(unit, None)
+                for index in occurenceList.get(-unit, []):
+                    if UPclauseSet[index]:
+                        newClause = UPclauseSet[index] - {-unit}
+                        if not newClause:
+                            return False
+                        if len(newClause) == 1:
+                            newUnit = next(iter(newClause))
+                            if newUnit not in newAssignments:
+                                newUnits.add(newUnit)
+                        UPclauseSet[index] = newClause
+                UPstack.append((-unit, occurenceList.get(-unit, set())))
+                occurenceList.pop(-unit, None)
+            newAssignments.update(newUnits)
+            units = newUnits
+        return UPclauseSet, newAssignments, UPstack
+
+    def inner(clauseSet, partialAssignment):
+        up = dynamicUP(clauseSet, [])
+        if not up:
+            return False
+        UPclauseSet, addedAssignments, UPstack = up
+        partialAssignment.extend(list(addedAssignments))
+        if not occurenceList:
+            return partialAssignment
+        stack = []
+        PosClauses = UPclauseSet[:]
+        variable = JWCof4(UPclauseSet, occurenceList)
+        for idx in occurenceList.get(variable, []):
+            PosClauses[idx] = None
+        stack.append((variable, occurenceList.pop(variable, set())))
+        for idx in occurenceList.get(-variable, []):
+            if PosClauses[idx]:
+                PosClauses[idx] -= {-variable}
+        stack.append((-variable, occurenceList.pop(-variable, set())))
+        result = inner(PosClauses, partialAssignment + [variable])
+        if result:
+            return result
+        while stack:
+            key, idxs = stack.pop()
+            occurenceList[key] = idxs
+        negClauses = UPclauseSet[:]
+        for idx in occurenceList.get(-variable, []):
+            negClauses[idx] = None
+        for idx in occurenceList.get(variable, []):
+            if negClauses[idx]:
+                negClauses[idx] -= {variable}
+        result = inner(negClauses, partialAssignment + [-variable])
+        if result:
+            return result
+        while stack:
+            key, idxs = stack.pop()
+            occurenceList[key] = idxs
+        while UPstack:
+            key, idxs = UPstack.pop()
+            occurenceList[key] = idxs
+        return False
+
+    occurenceList = buildOccurenceList(clauseSet)
+    clauseSet = [set(clause) for clause in clauseSet]
+    return inner(clauseSet, partialAssignment[:])
+
+def solve(event):
+    raw = document["dimacs"].value
+    clauses = load_dimacs_from_string(raw)
+    result = dpll_sat_solve(clauses)
+    if result:
+        document["output"].text = "SATISFIABLE\nAssignment: " + str(result)
+    else:
+        document["output"].text = "UNSATISFIABLE"
+
+document["solveBtn"].bind("click", solve)
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.min.js" integrity="sha384-VQqxDN0EQCkWoxt/0vsQvZswzTHUVOImccYmSyhJTp7kGtPed0Qcx8rK9h9YEgx+" crossorigin="anonymous"></script>
+</body>
+</html>

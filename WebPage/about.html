@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>About SAT Solver</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-SgOJa3DmI69IUzQ2PVdRZhwQ+dy64/BUtbMJw1MZ8t5HZApcHrRKUc4W0kG879m7" crossorigin="anonymous">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <nav class="navbar sticky-top navbar-expand-lg">
+        <div class="container">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-label="Toggle navigation" aria-expanded="false" aria-controls="navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item"><a class="nav-link" href="index.html">Sat Solver</a></li>
+                    <li class="nav-item"><a class="nav-link" href="sat-checker.html">Sat Checker</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="about.html">About</a></li>
+                </ul>
+                <div class="p-1"></div>
+            </div>
+        </div>
+    </nav>
+
+<div class="container">
+    <h2 class="mt-4">About This SAT Solver</h2>
+    <div class="row">
+        <div class="col-md-9">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h3 class="card-title">What is SAT?</h3>
+                    <p class="card-text">
+                        The Boolean Satisfiability Problem (SAT) is a fundamental problem in computer science.
+                        It asks whether there exists an assignment of TRUE/FALSE values to variables in a Boolean formula
+                        that makes the entire formula evaluate to TRUE.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h3 class="card-title">DPLL Algorithm</h3>
+                    <p class="card-text">
+                        This implementation uses the Davis–Putnam–Logemann–Loveland (DPLL) algorithm with an occurrence list
+                        for efficiently solving SAT problems. The DPLL algorithm combines backtracking search with unit propagation
+                        and pure literal elimination.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-body">
+                    <h3 class="card-title">How to Use</h3>
+                    <p class="card-text">
+                        Input your SAT problem in DIMACS CNF format on the Solver page, or verify an assignment on the Checker page.
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <h3 class="card-title">Resources</h3>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item"><a href="https://en.wikipedia.org/wiki/Boolean_satisfiability_problem" target="_blank">SAT on Wikipedia</a></li>
+                        <li class="list-group-item"><a href="https://en.wikipedia.org/wiki/DPLL_algorithm" target="_blank">DPLL Algorithm</a></li>
+                        <li class="list-group-item"><a href="https://www.cs.ubc.ca/~hoos/SATLIB/benchm.html" target="_blank">SATLIB Benchmark Problems</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer class="text-center mt-5 py-4">
+    <p class="mb-1">© 2025 Othman Achki. All Rights Reserved.</p>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.min.js" integrity="sha384-VQqxDN0EQCkWoxt/0vsQvZswzTHUVOImccYmSyhJTp7kGtPed0Qcx8rK9h9YEgx+" crossorigin="anonymous"></script>
+</body>
+</html>

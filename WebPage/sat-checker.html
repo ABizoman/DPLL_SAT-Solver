@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>SAT Checker</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-SgOJa3DmI69IUzQ2PVdRZhwQ+dy64/BUtbMJw1MZ8t5HZApcHrRKUc4W0kG879m7" crossorigin="anonymous">
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/brython@3.11.0/brython.min.js"></script>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body onload="brython()">
+
+    <nav class="navbar sticky-top navbar-expand-lg">
+        <div class="container">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-label="Toggle navigation" aria-expanded="false" aria-controls="navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item"><a class="nav-link" href="index.html">Sat Solver</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="sat-checker.html">Sat Checker</a></li>
+                    <li class="nav-item"><a class="nav-link" href="about.html">About</a></li>
+                </ul>
+                <div class="p-1"></div>
+            </div>
+        </div>
+    </nav>
+
+<div class="container">
+    <h2 class="mt-4">SAT Assignment Checker</h2>
+    <p>Check if an assignment satisfies a given DIMACS formula</p>
+    
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <label for="dimacs" class="form-label">DIMACS Formula:</label>
+            <textarea id="dimacs" class="form-control" rows="10">p cnf 3 2 
+1 -3 0 
+2 3 -1 0</textarea>
+        </div>
+        <div class="col-md-6">
+            <label for="assignment" class="form-label">Assignment (space-separated literals):</label>
+            <textarea id="assignment" class="form-control" rows="3">1 -3 2</textarea>
+            <div class="form-text">Example: 1 -3 2 means variables 1 and 2 are TRUE, variable 3 is FALSE</div>
+        </div>
+    </div>
+    
+    <button class="btn btn-dark" type="button" id="checkBtn">Check Assignment</button>
+    
+    <h3 class="mt-4">Result:</h3>
+    <pre id="output"></pre>
+</div>
+
+<footer class="text-center mt-5 py-4">
+    <p class="mb-1">© 2025 Othman Achki. All Rights Reserved.</p>
+</footer>
+
+<script type="text/python">
+from browser import document
+
+def load_dimacs_from_string(dimacs_str):
+    lines = dimacs_str.strip().splitlines()
+    clauses = []
+    for line in lines:
+        line = line.strip()
+        if line == '' or line.startswith('c') or line.startswith('p'):
+            continue
+        clause = list(map(int, line.split()[:-1]))  # skip trailing 0
+        clauses.append(clause)
+    return clauses
+
+def parse_assignment(assignment_str):
+    return list(map(int, assignment_str.strip().split()))
+
+def check_validity(clauses, assignment):
+    # Convert assignment list to set for faster lookup
+    assignment_set = set(assignment)
+    
+    # Check each clause
+    for i, clause in enumerate(clauses):
+        # A clause is satisfied if at least one literal is true
+        is_clause_satisfied = False
+        
+        for literal in clause:
+            if literal in assignment_set:
+                is_clause_satisfied = True
+                break
+        
+        if not is_clause_satisfied:
+            return False, i
+    
+    return True, None
+
+def check_assignment(event):
+    dimacs_str = document["dimacs"].value
+    assignment_str = document["assignment"].value
+    
+    clauses = load_dimacs_from_string(dimacs_str)
+    assignment = parse_assignment(assignment_str)
+    
+    is_valid, failed_clause_index = check_validity(clauses, assignment)
+    
+    if is_valid:
+        document["output"].text = "VALID: The assignment satisfies all clauses."
+    else:
+        document["output"].text = f"INVALID: The assignment does not satisfy clause {failed_clause_index + 1}: {clauses[failed_clause_index]}"
+
+document["checkBtn"].bind("click", check_assignment)
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.min.js" integrity="sha384-VQqxDN0EQCkWoxt/0vsQvZswzTHUVOImccYmSyhJTp7kGtPed0Qcx8rK9h9YEgx+" crossorigin="anonymous"></script>
+</body>
+</html>
