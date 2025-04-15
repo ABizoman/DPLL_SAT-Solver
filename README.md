@@ -1,7 +1,7 @@
 # DPLL SAT Solver
 14/04/2025
 
-This is a lightweight Python implementation of the DPLL Boolean satisfiability algorithm using an occurrence list. You can use this sat solver on [this website].
+This is a lightweight Python implementation of the DPLL Boolean satisfiability algorithm using an occurrence list. You can use this sat solver on [this website](https://abizoman.github.io/DPLL_SAT-Solver/WebPage/index.html).
 
 # Table of Contents
 - [Introduction](#introduction)
